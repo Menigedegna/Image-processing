@@ -40,7 +40,7 @@ import XTSegmentNuclei as SN
 # Start of extension
 #==============================================================================
 # Function to generate random spots in nucleus
-def simulate3DPointsInSurface(vFactory, groupContainer, aRadius, chID, number_spots, surfMask, VoxelSizeX, VoxelSizeY, VoxelSizeZ,  vExtentMaxX, vExtentMaxY, vExtentMaxZ):
+def simulate3DPointsInSurface(vFactory, groupContainer, aRadius, chID, number_spots, surfMask, VoxelSizeX, VoxelSizeY, VoxelSizeZ,  vExtentMaxX, vExtentMaxY, vExtentMaxZ,SpotName):
     """Choose random voxel IDs from mask created"""
     NumberOfSimulation              =   min(len(surfMask), number_spots)
     RandomPointVoxelId        =   np.random.choice(range(len(surfMask)), NumberOfSimulation)
@@ -48,7 +48,7 @@ def simulate3DPointsInSurface(vFactory, groupContainer, aRadius, chID, number_sp
     """Concert voxel ID into X,Y,Z position coordiantes"""
     RandomPosition      =   ConvertCoordianteIntoVoxelId("Rev", RandomPointVoxel, VoxelSizeX, VoxelSizeY, VoxelSizeZ,  vExtentMaxX, vExtentMaxY, vExtentMaxZ)
 #    SpotName            =   str(NumberOfSimulation)+"random spots created"
-#    vSpot               =   CreateSpots(vFactory, RandomPosition, SpotName, groupContainer, aRadius)
+    vSpot               =   CreateSpots(vFactory, RandomPosition, SpotName, groupContainer, aRadius)
     return RandomPosition
  
 def GetRandomIntensity(FlattenedSurfMask, FlattenedChannelData, NumbRandomSpots):
@@ -188,7 +188,7 @@ def CreateShells(vFactory, SurfaceList, number_of_shell, SurfaceName, MaxFactor)
 # Use masks to identify voxels inside shells
 # Randomly select voxels and get X,Y,Z coordinates and intensity in selected channels
 #==============================================================================
-def SimulateRandomSpots(TypeStudy, numberIndex, ListParameters, ChromocenterSurface, NucleusSurface, NucleolusSurface, NucleusSurfaceVolume, FileIndex, Result_pathway, DistanceOptions):
+def SimulateRandomSpots(TypeStudy, numberIndex, ListParameters, ChromocenterSurface, NucleusSurface, NucleolusSurface, NucleusSurfaceVolume, FileIndex, Result_pathway, DistanceOptions, SimulationAreaOption):
     global ListOfContainers 
     Dyes                        =   [DAPIChannel]   +   SelectedChanelIndex # Indexes of intensities I save for each spot
     NumberSelectedChannel       =   len(SelectedChanelIndex)
@@ -228,10 +228,16 @@ def SimulateRandomSpots(TypeStudy, numberIndex, ListParameters, ChromocenterSurf
     SurfaceList             =   [x for x,y in zip([ChromocenterSurface, NucleolusSurface], [DistanceOptions[2], DistanceOptions[1]]) if y ==1]
     if len(SurfaceList)>0:
         surfaceAnalised     =   [x for x,y in zip(["Chromocenters", "Nucleolus"], [DistanceOptions[2], DistanceOptions[1]]) if y ==1]
-        SurfaceName         =   '-'.join(surfaceAnalised)
-        ListOfShells        =   CreateShells(vFactory, SurfaceList, NumberOfShell, "Nucleus", ListParameters[10])
-        ShellMaskList       =   GeteMasks(ListOfShells, "inverse", NucleusSurface)[0]
-        ListMask.append(ShellMaskList)
+        if SimulationAreaOption == "Outside":
+             SurfaceName         =   ['-'.join(surfaceAnalised)]
+             ListOfShells        =   CreateShells(vFactory, SurfaceList, NumberOfShell, "Nucleus", ListParameters[9])
+             ShellMaskList       =   GeteMasks(ListOfShells, "inverse", NucleusSurface)[0]
+             ListMask.append(ShellMaskList)
+        else: #for inside surface simulation,simulations are done seperatedly for CC and nucleolus
+             for surf, SurfaceName in zip(SurfaceList, surfaceAnalised):
+                  ListOfShells        =   CreateShells(vFactory, [surf], NumberOfShell, "Nucleus", ListParameters[9])
+                  ShellMaskList       =   GeteMasks(ListOfShells, "", NucleusSurface)[0]
+                  ListMask.append(ShellMaskList)
         logtime("Shells are created for"+SurfaceName)
     GroupOfRandomPoints                 =   vFactory.CreateDataContainer() # Container for simulated spots
     GroupOfRandomPoints.SetName("Random spots")
@@ -248,14 +254,16 @@ def SimulateRandomSpots(TypeStudy, numberIndex, ListParameters, ChromocenterSurf
 #==============================================================================
 #         Get random spots for each mask 
 #==============================================================================
-    for mk in range(len(ListMask)):
+    SpotNameList=["Nucleus Mask"]+[x+" Mask" for x in surfaceAnalised]
+    for mk,SpotName in zip(range(len(ListMask)),SpotNameList):
         ShellMaskList       =   ListMask[mk]
         ListSelectedVoxels    =   [[x,y,z] for x in range(vImageSizeX) for y in range(vImageSizeY) for z in range(vImageSizeZ) if ShellMaskList[x][y][z]]
         FlattenedSurfMask       =   [x for sublistZ in ShellMaskList for sublistY in sublistZ for x in sublistY]
-        for NumbSpots in [1000, 10000,100000,200000,5000,10000]:
+#        for NumbSpots in [1000, 10000,100000,200000,5000,10000]:
+        for NumbSpots in [10000]:
             for sim in range(NumberOfSimulation):
                 #Create random spots
-                RandomSpot          =   simulate3DPointsInSurface(vFactory, GroupOfRandomPoints,  0.025, 0, NumbSpots, ListSelectedVoxels,  VoxelSizeX, VoxelSizeY, VoxelSizeZ, vExtentMaxX, vExtentMaxY, vExtentMaxZ)
+                RandomSpot          =   simulate3DPointsInSurface(vFactory, GroupOfRandomPoints,  0.025, 0, NumbSpots, ListSelectedVoxels,  VoxelSizeX, VoxelSizeY, VoxelSizeZ, vExtentMaxX, vExtentMaxY, vExtentMaxZ, SpotName)
                 SaveTable         =       pd.DataFrame(RandomSpot).T
                 vPathToSaveTables = os.path.join(Result_pathway, "Position_SP"+str(0)+"_ST"+str(mk)+"_Sml"+str(sim)+"_Sim_"+str(NumbSpots))
                 SaveTable.to_csv(path_or_buf=vPathToSaveTables +"_"+str(FileIndex)+".csv", na_rep='', float_format=None, columns=None, header=True, index=False, decimal='.')
@@ -326,7 +334,7 @@ def RemoveObjectsCreated(vScene, ListOfContainers):
 # Selects random voxels to get spot position and intensity
 # And saves position and intensity in csv file
 #==============================================================================
-def GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmentation, DistanceOptions, ParametersList, BatchProcessing, vFullFileName):
+def GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmentation, DistanceOptions, ParametersList, BatchProcessing, vFullFileName, SimulationAreaOption):
     global vImaris
     global numberIndex
     global SelectedChanelIndex, DAPIChannel
@@ -378,7 +386,7 @@ def GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmenta
 #==============================================================================
         if NucleusSurface.GetNumberOfSurfaces()>0:
             NucleusSurfaceVolume    =   GetVolume(NucleusSurface)
-            SimulateRandomSpots(TypeStudy, numberIndex, ParametersList, ChromocenterSurface, NucleusSurface, NucleolusSurface, NucleusSurfaceVolume, FileIndex, Result_pathway, DistanceOptions)
+            SimulateRandomSpots(TypeStudy, numberIndex, ParametersList, ChromocenterSurface, NucleusSurface, NucleolusSurface, NucleusSurfaceVolume, FileIndex, Result_pathway, DistanceOptions, SimulationAreaOption)
 #        if DoSegmentation:
 #            vPath = os.path.join(Result_pathway, vFileName+".ims")
 #            vImaris.FileSave(vPath, "")
@@ -506,17 +514,18 @@ def XTSimulateRandomSpots(aImarisId):
 			logtime('Connected to Imaris')
 			vImaris.GetSurpassCamera().SetOrthographic(True) #Set camera to orthographic view 
 			vImaris.GetSurpassCamera().Fit() #Sets the zoom and the position so that the bounding box of all visible objects fits into the window 
-			ListOfOptions                   =       [["Batch of images", "Just one image"], ["Segmentation & Quantify RNA PolII", "Quantify RNA PolII"], ["Nucleus", "Nucleolus", "Chromocenters"]]
-			ListOfMessages                  =       ["Do you wish to run the script on a batch of images or just on one image already opened?", "Do you wish to do automated segmentation?", "Do you wish to analyse RNA PolII distribution's as a function of the:"]
+			ListOfOptions                   =       [["Batch of images", "Just one image"], ["Segmentation & Quantify RNA PolII", "Quantify RNA PolII"], ["Nucleus", "Nucleolus", "Chromocenters"], ["Inside", "Outside"]]
+			ListOfMessages                  =       ["Do you wish to run the script on a batch of images or just on one image already opened?", "Do you wish to do automated segmentation?", "Do you wish to analyse RNA PolII distribution's as a function of the:", "You want to simulate spots inside or outside the surfaces?"]
 			UserParameterList               =       []
 			for i in range(len(ListOfOptions)):
 				OPTIONS                         =       ListOfOptions[i]
 				Messge                          =       ListOfMessages[i]
 				PopUpMessage(OPTIONS, Messge)
 				UserParameterList               =       UserParameterList + [User_selection]
-			BatchProcessing	                =	    UserParameterList[0][0]
+			BatchProcessing	                =	    UserParameterList[0][0] #take into account only first selection
 			DoSegmentation	                =	    UserParameterList[1][0]
 			DistanceOptions                 =       UserParameterList[2]
+  			SimulationAreaOption                 =       UserParameterList[3][0]
 			TypeStudy           =   []   # List variable to track the type of study selected by user :  distribution as a function of the nucleus and / or chromocenters and / or nucleolus 
 			TypeStudy.append("Nucleus")
 			surfaceAnalised     =   [x for x,y in zip(["Chromocenters", "Nucleolus"], [DistanceOptions[2], DistanceOptions[1]]) if y ==1]
@@ -531,7 +540,7 @@ def XTSimulateRandomSpots(aImarisId):
 				root1.destroy()
 #				Result_pathway          =           os.path.join(Image_folder, "XTSimulateRandomSpots_Result")
  				FolderName          =   os.path.basename(Image_folder)
- 				Result_pathway          =   os.path.join("Z:\Result0309\s15_3H1", FolderName, "XTSimulateRandomSpots_Result")
+ 				Result_pathway          =   os.path.join(r"Z:\Result0309\s20_Wt", FolderName, "XTSimulateRandomSpotsInside_Result")
 				CreateDirectoryToSaveFiles(Result_pathway)
 				AllFilesInDirectory     =           os.listdir(Image_folder) #get all files in the Image_folder directory
 				AllFilesToBeProcessed   =           [i for i in AllFilesInDirectory if i.endswith('.ims') or i.endswith('.ics')] #select files with .ims or .ics extensions
@@ -543,7 +552,7 @@ def XTSimulateRandomSpots(aImarisId):
 							vFullFileName = os.path.join(Image_folder, vFileName)
 							vImaris.FileOpen(vFullFileName, "")
 							logtime('Image processing START image: '+str(vFileName))
-							ImageIsEmpty   =           GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmentation, DistanceOptions, ParametersList, BatchProcessing, vFullFileName)
+							ImageIsEmpty   =           GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmentation, DistanceOptions, ParametersList, BatchProcessing, vFullFileName, SimulationAreaOption)
 							if not ImageIsEmpty:
 								FileIndex	               +=  		1
 								FileNameList.append(vFileName)
@@ -568,10 +577,10 @@ def XTSimulateRandomSpots(aImarisId):
 					vFileName           =   vImaris.GetCurrentFileName()
 					vFilePath           =   os.path.dirname(vFileName)
 					vFullFileName = os.path.join(vFilePath, vFileName)
-					Result_pathway      =   os.path.join(vFilePath, "XTSimulateRandomSpots_Result")
+					Result_pathway      =   os.path.join(vFilePath, "XTSimulateRandomSpotsInside_Result")
 					CreateDirectoryToSaveFiles(Result_pathway)
 					vFileName           =   os.path.split(vFileName)[1]
-					ImageIsEmpty        =   GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmentation, DistanceOptions, ParametersList, BatchProcessing, vFullFileName)
+					ImageIsEmpty        =   GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmentation, DistanceOptions, ParametersList, BatchProcessing, vFullFileName, SimulationAreaOption)
 				if not ImageIsEmpty :
 					FileIndex	               +=  		1
 					FileNameList.append(vFileName)					
