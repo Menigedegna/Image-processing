@@ -26,7 +26,7 @@ shutil
 
 ## Running the tests and getting Started
 
-Please run the plugins on the demo file provided to make sure that you have all the packages and software versions required to run the plugins properly. Once you have you confirm you get the desired result with the demo files, test few (10 images recommended) of your own images and adjust the parameters untill you get the desired results. Once you have set and saved the input parameters, run a batch processing of all your images, depending on the number and size of your images this may take a while. The python console keeps track of milestones achieved. This can give you an idea of how much time is required for all your images.
+Please run the plugins on the demo file provided to make sure that you have all the packages and software versions required to run the plugins properly. Once you have you've confirmed that you get the desired result with the demo files, test few (10 images recommended) of your own images and adjust the parameters untill you get the desired results. Once you have set and saved the input parameters, you can run an automated batch processing of all your images. Depending on the number and size of your images this may take a while. When you run any plugin a python console is displayed and keeps track of tasks completed and the duration. This can give you an idea of how much time is required for all your images.
 
 ## Built With
 
@@ -40,5 +40,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * UZH images processing plateform for providing Imaris software
+* Dr Célia Baroux for collaborating with the nuclei isolation and FISH protocol
 * Prof. Reinhard Furrer and Dr. Peter Majer for their recommendations
 * Users of Stack Overflow for their questions and their answers
