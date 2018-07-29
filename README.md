@@ -42,7 +42,7 @@ Please run the plugins on the demo file provided to make sure that you have all 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed.
 
 ## Acknowledgments
 
