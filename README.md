@@ -1,7 +1,7 @@
 # Imaris plugins for high resolution 3D nucleus microscopy images 
 
 These plugins are designed for isolated nuclei undergone FISH or Immunostaining and conterstained with DNA staining dyes. The 3D microscopy images need to be high resolution for better performance (values in parameter files for each plugin can be adjusted to accomodate different resolution) and you should be able to visualise detect immunostaining foci or FISH spots visually on the images for the segmentation in the plugins to work. 
-Please read the FISH_Image processing_protocol.pdf that I published in Methods and Protocols, Methods in Molecular Biology, to get more information about how to acquire such (FISH) images.
+Please read the FISH_Image processing_protocol.pdf that I published in Methods and Protocols, Methods in Molecular Biology 2018, to get more information about how to acquire such (FISH) images.
 
 ## Setting up the  environment
 Please follow the visual instructions in the Set_up.ppt to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin.
