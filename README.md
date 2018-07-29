@@ -4,14 +4,14 @@ These plugins are designed for isolated nuclei undergone FISH or Immunostaining 
 Please read the FISH_Image processing_protocol.pdf that I published in Methods and Protocols, Methods in Molecular Biology, to get more information about how to acquire such (FISH) images.
 
 ## Setting up the  environment
-Please follow the visual instructions in the Read me power point to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin.
+Please follow the visual instructions in the Set_up.ppt to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin.
 
 ### Prerequisites
 
-Imaris version 8.4 and above.
+Imaris version 8.4 and above. 
+
 Python 2.7 and above and the following packages:
 ```
-ImarisLib
 Tkinter
 os
 logging
