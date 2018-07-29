@@ -292,7 +292,7 @@ def CountNumberOfSpot(TypeStudy, numberIndex, ListParameters, ImmunoSpotList, Ch
     if len(SurfaceList)>0:
         surfaceAnalised     =   [x for x,y in zip(["Chromocenters", "Nucleolus"], [DistanceOptions[2], DistanceOptions[1]]) if y ==1]
         SurfaceName         =   '-'.join(surfaceAnalised)
-        ListOfShells        =   CreateShells(vFactory, SurfaceList, NumberOfShell, "Nucleus", ListParameters[10])
+        ListOfShells        =   CreateShells(vFactory, SurfaceList, NumberOfShell, "Nucleus", ListParameters[9])
         ShellMaskList       =   GeteMasks(ListOfShells, "inverse", NucleusSurface)[0]
         ListMask.append(ShellMaskList)
         logtime("Shells are created for"+SurfaceName+" - Image "+str(FileIndex))
@@ -502,7 +502,6 @@ def GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmenta
         vImage.SetTimePoint(0, date) # time point needs to be set for each image to avoid creating different time frames when closing and opening a new image.
         GroupOfObjects	           =	vFactory.CreateDataContainer()
         GroupOfObjects.SetName('Segmented objects')
-        ListOfContainers.append(GroupOfObjects)
 #==============================================================================
 # SEGMENT SURFACES
 #==============================================================================
@@ -528,8 +527,9 @@ def GetImageFeatures(TypeStudy, FileIndex, Result_pathway, vFileName, DoSegmenta
 #==============================================================================
             if NucleusSurface.GetNumberOfSurfaces()>0:
                 numberIndex =   numberIndex+2
-                ImmunoSignalList, ImmunoNames     =   SegImmunChannel(SelectedChanelIndex, UserSetDiameters, ParametersList[7],FileIndex, GroupOfObjects, NucleusSurface, numberIndex)
+                ImmunoSignalList, ImmunoNames     =   SegImmunChannel(SelectedChanelIndex, UserSetDiameters, ParametersList[8],FileIndex, GroupOfObjects, NucleusSurface, numberIndex)
                 numberIndex =   numberIndex+len(SelectedChanelIndex)
+            ListOfContainers.append(GroupOfObjects)
             logtime('Segmentation END - image_'+str(FileIndex))
         else:
             NucleusSurface, NucleolusSurface, ChromocenterSurface,ImmunoNames,ImmunoSignalList  = GetSegmentedObjects(DistanceOptions, FileIndex)
@@ -745,7 +745,7 @@ def XTSpotIntensity(aImarisId):
 				Image_folder			=	        tkFileDialog.askdirectory(parent=root1, initialdir="/",title='Please select the directory containing the images to be processed. \n The folder containing the resulting files will be saved in this directory.')
 				root1.destroy()
 				FolderName          =   os.path.basename(Image_folder)
-				Result_pathway          =   os.path.join("Z:\Result0309\s16_3H1", FolderName, "XTCountSpotPerShell_Result")
+				Result_pathway          =   os.path.join("Z:\Result0309\FISH", FolderName, "XTCountSpotPerShell_Result")
 				CreateDirectoryToSaveFiles(Result_pathway)
 				AllFilesInDirectory     =           os.listdir(Image_folder) #get all files in the Image_folder directory
 				logtime('Get all files')

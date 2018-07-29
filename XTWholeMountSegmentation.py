@@ -4,17 +4,17 @@
 #==============================================================================
 # Objectives of this PythonXT for Imaris:
 #   Segments nucleus, nucleolus and chromocenters into surfaces in DAPI channel,
-#    Export few vertices of surfaces
-#   Exports result into .csv tables and save .ims file containing the surfaces, spots created
-# Note: This script is calibrated for 3D images of DAPI stained plant nuclei obtained using Leica TCS SP8 or SP5
+#    Segment FISH or Immunostaining signal into spots or surfaces
+#   Exports items position and features into a .csv tables and save .ims file 
+# Note: This script is designed for whole mount immunostaining, FISH of plant tissue conterstained in DAPI. 3D images are acquired using high resolution microscopy. Parameters in XTWholeMountSegmentation_Parameters.csv need to be adjusted to resolution of image.
 # Creator: Mariamawit S. Ashenafi, UZH
-# Published on 23.01.2018
+# Created on 11.04.2018
 #==============================================================================
 #
 #    <CustomTools>
 #      <Menu>
-#       <Item name="XTGetSurfaceVertices" icon="Python" tooltip="XTGetSurfaceVertices">
-#         <Command>PythonXT::XTGetSurfaceVertices(%i)</Command>
+#       <Item name="XTWholeMountSegmentation" icon="Python" tooltip="XTWholeMountSegmentation">
+#         <Command>PythonXT::XTWholeMountSegmentation(%i)</Command>
 #       </Item>
 #      </Menu>
 #    </CustomTools>
@@ -53,28 +53,46 @@ def CreateSpots(vFactory, aPositionsXYZ, SpotName, groupContainer, aRadius):
 
 
 # Function to quantify spots in image
-def getSurfaceVertices(numberIndex, vSurface, FileIndex, Result_pathway, SurfaceName,GroupOfObjects, NumberOfVertices):
+def getSurfaceVertices(numberIndex, vSurface, FileIndex, Result_pathway, SurfaceName,GroupOfObjects, LayerSize):
      vFactory		                 =	vImaris.GetFactory().CreateFactory()
-     VerticesPosition              =    pd.DataFrame()
+     NumberOfSurfaces = vSurface.GetNumberOfSurfaces()
      logtime('Get vertices START - image_'+str(FileIndex))
-     # 		Quantify spots and intensities
-     # ==============================================================================
-     for SelectedID in range(vSurface.GetNumberOfSurfaces()):
-          vVertices                =    vSurface.GetVertices(SelectedID)
-          vVertices                =    pd.DataFrame(vVertices)
-          vStep                    =    len(vVertices)/NumberOfVertices
-          if vStep>2: 
-               SelectIndex              =    range(0, len(vVertices), vStep)
-               vVertices                =    vVertices.iloc[SelectIndex,]
-          verts                    =    vVertices.values.tolist()
-          CreateSpots(vFactory,verts , SurfaceName+"Vertices", GroupOfObjects, 0.025)
-          VerticesPosition         =    VerticesPosition.append(vVertices)
-     #==============================================================================
-     #                 Export spot positions
-     #==============================================================================
-     VerticesPosition.index        =    range(len(VerticesPosition))
-     vPathToSaveTables = os.path.join(Result_pathway,SurfaceName+"Vertices")
-     VerticesPosition.to_csv(path_or_buf=vPathToSaveTables+"_"+str(FileIndex)+".csv", na_rep='', float_format=None, columns=None, header=True, index=False, decimal='.')
+#==============================================================================
+#  Get vertices per suface and add a layer for each nucleus
+# 
+#==============================================================================
+#     vVertices=[]
+#     vNumberOfVerticesPerSurface=[]
+#     vTriangles=[]
+#     vNumberOfTrianglesPerSurface=[]
+#     vNormals=[]
+     NewShellSurface		        =	 vImaris.GetFactory().CreateSurfaces()
+     for SelectedID in range(NumberOfSurfaces):
+          aVertices                =  vSurface.GetVertices(SelectedID)
+#          vNumberOfVerticesPerSurface=vNumberOfVerticesPerSurface+[len(aVertices)]
+          vTriangles                =  vSurface.GetTriangles(SelectedID)
+#          vTriangles.extend(aTriangles)
+#          vNumberOfTrianglesPerSurface=vNumberOfTrianglesPerSurface+[len(aTriangles)]
+          vNormals                =  vSurface.GetNormals(SelectedID)
+#          vNormals.extend(aNormals)
+          vCenterOfMass		=	vSurface.GetCenterOfMass(SelectedID)[0]
+#          aVertices                =    pd.DataFrame(aVertices)
+#          vStep                    =    len(vVertices)/NumberOfVertices
+#          if vStep>2: 
+#               SelectIndex              =    range(0, len(vVertices), vStep)
+#               vVertices                =    vVertices.iloc[SelectIndex,]
+#          LayerMat=[x-y for x,y in zip(LayerMat, vCenterOfMass)]
+#          LayerMat=pd.DataFrame(LayerMat).T
+#          LayerMat = pd.concat([LayerMat]*len(aVertices))
+#          aVertices=aVertices.add(LayerMat)
+#          vVertices                    =    aVertices.values.tolist()
+          vVertices=[[x[0]-LayerSize if x[0]<vCenterOfMass[0] else x[0]+LayerSize, x[1]-LayerSize if x[1]<vCenterOfMass[1] else x[1]+LayerSize, x[2]-LayerSize if x[2]<vCenterOfMass[2] else x[2]+LayerSize] for x in aVertices]
+#          vVertices        =   [[x[0]+LayerSize, x[1]+LayerSize, x[2]+LayerSize] for x in aVertices]
+          vTimeIndexPerSurface           =  0
+          NewShellSurface.AddSurface (vVertices, vTriangles,vNormals,vTimeIndexPerSurface)
+#     NewShellSurface.AddSurfacesList(vVertices,vNumberOfVerticesPerSurface,vTriangles,vNumberOfTrianglesPerSurface,vNormals,vTimeIndexPerSurface)
+     NewShellSurface.SetName("Adjusted nuclei")
+     GroupOfObjects.AddChild(NewShellSurface, -1)
      logtime('Get vertices END - image_'+str(FileIndex))
 
 
@@ -121,7 +139,7 @@ def GetSegmentedObjects(DistanceOptions,FileIndex):
             i+=1
         logtime('Object detection END - image_'+str(FileIndex))
 #    return NucleusSurface, NucleolusSurface, ChromocenterSurface, ImmunoSpotNames, ImmunoSpotList
-    return NucleusSurface, NucleolusSurface, ChromocenterSurface, ImmunoSpotNames, ImmunoSpotList
+    return NucleusSurface, NucleolusSurface, ChromocenterSurface
 
 #==============================================================================
 # This function:
@@ -142,53 +160,50 @@ def GetImageFeatures(FileIndex, Result_pathway, vFileName, DoSegmentation, Param
     vFactory		           =	vImaris.GetFactory().CreateFactory()
     if vImage is not None:
         numberIndex         = vImage.GetSizeC()
-        numberIndex     +=1
         date			=	str(datetime.datetime.now()).split(" ")[0]
         date			+=	" 00:00:00"
         vImage.SetTimePoint(0, date) # time point needs to be set for each image to avoid creating different time frames when closing and opening a new image.
+        #Ask user to set FISH channel to segment into surface
+    if FileIndex    == 1:
+        FISHChannelList= SN.Ask_user(numberIndex, "FISH")
+        numberIndex     +=1
         GroupOfObjects	           =	vFactory.CreateDataContainer()
         GroupOfObjects.SetName('Segmented objects')
 #==============================================================================
 # SEGMENT SURFACES
 #==============================================================================
-#==============================================================================
-#         Reset data coordinate so that the min X,Y,Z=0, this is necessary to simulate random spots
-#==============================================================================
-        vExtentMinX		=	vImage.GetExtendMinX()
-        vExtentMinY		=	vImage.GetExtendMinY()
-        vExtentMinZ		=	vImage.GetExtendMinZ()
-        vExtentMaxX		=	vImage.GetExtendMaxX()
-        vExtentMaxY		=	vImage.GetExtendMaxY()
-        vExtentMaxZ		=	vImage.GetExtendMaxZ()
-        vImage.SetExtendMaxX(vExtentMaxX-vExtentMinX) 
-        vImage.SetExtendMaxY(vExtentMaxY-vExtentMinY) 
-        vImage.SetExtendMaxZ(vExtentMaxZ-vExtentMinZ) 
-        vImage.SetExtendMinX(0.00) 
-        vImage.SetExtendMinY(0.00) 
-        vImage.SetExtendMinZ(0.00)
         if DoSegmentation:
             IsImageCorrect, NucleusSurface,ChromocenterSurface,  NucleolusSurface, DAPIChannel, GroupOfObjects=SN.SegmentAndGetFeatures(vImage, FileIndex, Result_pathway, vFileName, DistanceOptions, ParametersList, BatchProcessing, vFullFileName, True)
-            logtime('Segmentation END - image_'+str(FileIndex))
+            logtime('DAPI Segmentation END - image_'+str(FileIndex))
         else:
             NucleusSurface, NucleolusSurface, ChromocenterSurface = GetSegmentedObjects(DistanceOptions, FileIndex)
-#==============================================================================
-# GET VERTICES
-#==============================================================================
-        if DistanceOptions[0] and NucleusSurface is not None :
-             getSurfaceVertices(numberIndex, NucleusSurface, FileIndex, Result_pathway, "Nucleus ", GroupOfObjects, 10000)
-        if DistanceOptions[2] and ChromocenterSurface is not None :
-             getSurfaceVertices(numberIndex, ChromocenterSurface, FileIndex, Result_pathway, "Chromocenters ",GroupOfObjects,  500)
-        if DistanceOptions[1] and NucleolusSurface is not None :
-             getSurfaceVertices(numberIndex, NucleolusSurface, FileIndex, Result_pathway, "Nucleolus ",GroupOfObjects, 1000)
-        ListOfContainers.append(GroupOfObjects)
+#Adjust nucleus surfaces
+        if ParametersList[8]>0:
+             getSurfaceVertices(numberIndex, NucleusSurface, FileIndex, Result_pathway, "Nucleus ", GroupOfObjects, ParametersList[8])
+#Segment FISH channel into surfaces
+        for FISHChannel in FISHChannelList:
+             fishChannelColor   =   vImage.GetChannelColorRGBA(FISHChannel)
+             SN.SmoothChannel(FISHChannel, NucleusSurface, numberIndex, ParametersList, "Smoothed FISH Channel", fishChannelColor)
+             SmoothedChannel=numberIndex-1
+             FISHSurface          =  SN.SegHighIntensity(SmoothedChannel, NucleusSurface,"High FISH intensity","FISH Surface",numberIndex, GroupOfObjects, ParametersList)
+             GroupOfObjects.AddChild(FISHSurface, -1)
+             vScene.AddChild(GroupOfObjects, -1) 
+             logtime('FISH Channel-'+str(FISHChannel)+' Segmentation END - image_'+str(FileIndex))
+             ListOfContainers.append(GroupOfObjects)
+             ResultFileName="FISHCh"+str(FISHChannel)+"_SurfaceFeatures"
+             SN.ExtractSurfaceFeatures([FISHSurface],["FISH"], Result_pathway, FileIndex, vImage, ResultFileName, NucleusSurface)
+             logtime('FISH Channel-'+str(FISHChannel)+' surface features saved END - image_'+str(FileIndex))
+        vPath = os.path.join(Result_pathway, vFileName+".ims")
+        vImaris.FileSave(vPath, "")
     else:
         print ("No image detected in file: "+vFileName)
         quit()
     if len(ListOfContainers)>0 and BatchProcessing:
         RemoveObjectsCreated(vScene, ListOfContainers)
-#    os.remove(vFullFileName)
+ #    os.remove(vFullFileName)
     return vImage is None
-
+ 
+#==============================================================================
 #==============================================================================
 # Functions required to log and display progress of the plugin
 #==============================================================================
@@ -257,7 +272,7 @@ def GetPluginParameters():
             tkMessageBox.showinfo(title="Error", message="Please make sure the 'XTWholeMountSegmentation_Parameters.csv' file contains a column 'Value' containing the values necessary for this plugin.")
             quit()
     else:
-        tkMessageBox.showinfo(title="Error", message="Please make sure there is a 'XTWholeMountSegmentation_Parameters.csv' in the folder containing the 'XTGetSurfaceVertices.py'.")
+        tkMessageBox.showinfo(title="Error", message="Please make sure there is a 'XTWholeMountSegmentation_Parameters.csv' in the folder containing the 'XTCountSpotPerShell.py'.")
         quit()
     return ParametersList
 
@@ -267,7 +282,7 @@ def GetPluginParameters():
 #Function to create a folder under the same directory as the images to save files that are produced
 def CreateDirectoryToSaveFiles(Result_pathway):
     if os.path.exists(Result_pathway):
-        tkMessageBox.showinfo(title="Alert", message="Please save the folder 'XTGetSurfaceVertices_Result' under another name first!")
+        tkMessageBox.showinfo(title="Alert", message="Please save the folder 'XTWholeMountSegmentation_Result' under another name first!")
         quit()
     else:
         os.makedirs(Result_pathway)
@@ -277,16 +292,17 @@ def CreateDirectoryToSaveFiles(Result_pathway):
 # Connects to Imaris and get image
 # Process images
 #==============================================================================
-def XTGetSurfaceVertices(aImarisId):
-	logging.basicConfig(level=logging.DEBUG, filename= "log[XTGetSurfaceVertices].log")
+def XTWholeMountSegmentation(aImarisId):
+	logging.basicConfig(level=logging.DEBUG, filename= "log[XTWholeMountSegmentation].log")
 	try:
 		#Declare global variables
 		global gLasttime
 		global vImaris
 		global SelectedChanelIndex
 		gLasttime               =    None
-		logtime('Extension XTGetSurfaceVertices START')
-		print ("Hello")
+		FISHChannel           =    None
+		logtime('Extension XTWholeMountSegmentation START')
+		print ("Hello!")
 		FileNameList            =   []
 		#            Step1: Connect to Imaris
 		#==============================================================================
@@ -300,10 +316,11 @@ def XTGetSurfaceVertices(aImarisId):
 		# Open File and get filename
 		if vImaris is not None :
 			logtime('Connected to Imaris')
-			vImaris.GetSurpassCamera().SetOrthographic(True) #Set camera to orthographic view 
+#Set camera to orthographic view 
+			vImaris.GetSurpassCamera().SetOrthographic(True) 
 			vImaris.GetSurpassCamera().Fit() #Sets the zoom and the position so that the bounding box of all visible objects fits into the window 
-			ListOfOptions                   =       [["Batch of images", "Just one image"], ["Segment & Get vertices", "Get vertices"], ["Nucleus", "Nucleolus", "Chromocenters"]]
-			ListOfMessages                  =       ["Do you wish to run the script on a batch of images or just on one image already opened?", "Do you wish to do automated segmentation?", "Do you wish to analyse RNA PolII distribution's as a function of the:"]
+			ListOfOptions                   =       [["Batch of images", "Just one image"], ["Segment & Get Features", "Get Features"], ["Nucleus", "Nucleolus", "Chromocenters"]]
+			ListOfMessages                  =       ["Do you wish to run the script on a batch of images or just on one image already opened?", "Do you wish to do automated segmentation?", "Which nucleus features do you wish to segment?"]
 			UserParameterList               =       []
 			for i in range(len(ListOfOptions)):
 				OPTIONS                         =       ListOfOptions[i]
@@ -321,7 +338,7 @@ def XTGetSurfaceVertices(aImarisId):
 				Image_folder			=	        tkFileDialog.askdirectory(parent=root1, initialdir="/",title='Please select the directory containing the images to be processed. \n The folder containing the resulting files will be saved in this directory.')
 				root1.destroy()
 				FolderName          =   os.path.basename(Image_folder)
-				Result_pathway          =   os.path.join(r"Z:\Result0309\FISH", FolderName, "XTGetSurfaceVertices_Result")
+				Result_pathway          =           os.path.join(Image_folder, "XTSegmentNuclei_Result")
 				CreateDirectoryToSaveFiles(Result_pathway)
 				AllFilesInDirectory     =           os.listdir(Image_folder) #get all files in the Image_folder directory
 				logtime('Get all files')
@@ -334,7 +351,7 @@ def XTGetSurfaceVertices(aImarisId):
         						vFullFileName = os.path.join(Image_folder, vFileName)
         						vImaris.FileOpen(vFullFileName, "")
         #						with concurrent.futures.ProcessPoolExecutor() as executor:
-        						ImageIsEmpty    =           GetImageFeatures(FileIndex, Result_pathway, vFileName, DoSegmentation, ParametersList, BatchProcessing, vFullFileName, DistanceOptions)
+        						ImageIsEmpty    =           GetImageFeatures(FileIndex, Result_pathway, vFileName, DoSegmentation, ParametersList, BatchProcessing, vFullFileName, DistanceOptions, FISHChannel)
         						if not ImageIsEmpty :
         							FileIndex	               +=  		1
         							FileNameList.append(vFileName)
@@ -356,7 +373,7 @@ def XTGetSurfaceVertices(aImarisId):
 					vFileName           =   vImaris.GetCurrentFileName()
 					vFilePath           =   os.path.dirname(vFileName)
 					vFullFileName = os.path.join(vFilePath, vFileName)
-					Result_pathway      =   os.path.join(vFilePath, "XTGetSurfaceVertices_Result")
+					Result_pathway      =   os.path.join(vFilePath, "XTWholeMountSegmentation_Result")
 					CreateDirectoryToSaveFiles(Result_pathway)
 					vFileName           =   os.path.split(vFileName)[1]
 					ImageIsEmpty        =   GetImageFeatures(FileIndex, Result_pathway, vFileName, DoSegmentation, ParametersList, BatchProcessing, vFullFileName, DistanceOptions)
@@ -366,12 +383,12 @@ def XTGetSurfaceVertices(aImarisId):
 				if ImageIsEmpty :
 					tkMessageBox.showinfo(title="Alert", message="No image is detected. \n Please open an image and select on 'CountSpotPerShell' again.")
 					quit()
-			logtime('XTGetSurfaceVertices extension done')
-			print ("All tasks have been completed successfully. \n Resulting files are saved in the folder XTGetSurfaceVertices_Result")
+			logtime('XTWholeMountSegmentation extension done')
+			print ("All tasks have been completed successfully. \n Resulting files are saved in the folder XTWholeMountSegmentation_Result")
 			raw_input("Press Enter to terminate.")
 		else:
 			tkMessageBox.showinfo(title="Alert", message="Imaris application is not found!")
-			logtime('Extension XTGetSurfaceVertices END')
+			logtime('Extension XTWholeMountSegmentation END')
 	except:
 		logging.exception("Oops:")
 
