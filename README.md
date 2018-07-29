@@ -8,9 +8,9 @@ Please follow the visual instructions in the Set_up.ppt to set up and use the pl
 
 ### Prerequisites
 
-Imaris v. 8.4 and above. 
+Imaris 8.4 and higher versions. 
 
-Python v. 2.7 and above and the following packages:
+Python 2.7 and higher versions and the following packages:
 ```
 Tkinter
 os
@@ -49,4 +49,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * UZH images processing plateform for providing Imaris software
 * Dr Célia Baroux for collaborating with the nuclei isolation and FISH protocol
 * Prof. Reinhard Furrer and Dr. Peter Majer for their recommendations
-* Users of Stack Overflow for their questions and their answers
+* Users of Stack Overflow for their questions and answers
