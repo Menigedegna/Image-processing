@@ -8,9 +8,9 @@ Please follow the visual instructions in the Set_up.ppt to set up and use the pl
 
 ### Prerequisites
 
-Imaris version 8.4 and above. 
+Imaris v. 8.4 and above. 
 
-Python 2.7 and above and the following packages:
+Python v. 2.7 and above and the following packages:
 ```
 Tkinter
 os
