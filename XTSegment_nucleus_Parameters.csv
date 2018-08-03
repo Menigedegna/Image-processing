@@ -1,0 +1,18 @@
+Parameters;Value;unit;
+"Surface grain size for detailed segmentation of the nucleus
+used to create the Low DAPI intensity channel";0.2;µm;0
+"Surface grain size for rough segmentation of the nucleus
+used to create the Low DAPI intensity channel";0.6;µm;1
+Surface grain size for segmentation of the nucleolus ;0.2;µm;2
+Diameter Of Largest Sphere for segmentation of the nucleolus ;0.77;µm;3
+Diameter Of Largest Sphere for segmentation of the nucleus ;0;µm;4
+Surface grain size for segmentation of Chromocenter surfaces;0;µm;5
+Diameter Of Largest Sphere for segmentation of chromocenter ;0;µm;6
+No Border Contact;0;True =1, False =0;7
+Select nucleus surface with the highest volume to area ratio;1;True =1, False =0;8
+Minimum volume threshold for chromocenter segmentation;0.411;um3;9
+Minimum intensity threshold = maximum intensity in channel * factor, factor=;0.3;None;10
+Minim volume threshold for nucleus segmentation ;14.6;um3;11
+Save .ims file;1;True =1, False =0;12
+Sigma value for gaussian filter smoothing;0.2;µm;13
+Sigma value for channel background substraction;0.2;µm;14
