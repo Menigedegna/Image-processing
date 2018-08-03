@@ -24,7 +24,7 @@ shutil
 
 ```
 
-Plugin  | Parameter file  | Import module
+Plugin  | Parameter file  | Import module from this repository
 ------------- | ------------- | -------------
 XTSegmentNuclei.py  | XTSegmentNuclei_Parameters.csv  | None
 XTGetShellIntensity.py  | None  | None
