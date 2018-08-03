@@ -10,7 +10,7 @@ XTGetShellIntensity.py  | XTSimulateRandomSpots.py
 Create multiple scaled surfaces of the nucleus surface and export intensity and volume of each shell (area in-between surfaces).  | * Simulate random spots. As an option the user can exclude the chromocenters and the nucleolus from the simulation area.
 <img src="XTGetShellIntensity_snapshot.png" alt="image not found" width="200px"/>  | <img src="XTSimulateRandomSpots_snapshots.png" alt="image not found" width="200px"/>
 XTSpotIntensity.py  | XTSimulateRandomSpots.py
-* Segment nucleus, chromocenters, nucleolus, foci and export intensity in all channels and positions of each spot.  | * Simulate random spots. As an option the user can exclude the chromocenters and the nucleolus from the simulation area.
+Segment nucleus, chromocenters, nucleolus, foci and export intensity in all channels and positions of each spot.  | * Simulate random spots. As an option the user can exclude the chromocenters and the nucleolus from the simulation area.
 <img src="XTSpotIntensity_snapshot.png" alt="image not found" width="200px"/>  | <img src="XTSimulateRandomSpots_snapshots.png" alt="image not found" width="200px"/>
 
 ## Setting up the  environment
