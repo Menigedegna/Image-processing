@@ -1,0 +1,11 @@
+Parameters;Value;unit;
+"Surface grain size for detailed segmentation of the nucleus
+used to create the Low DAPI intensity channel";0.2;µm;0
+"Surface grain size for rough segmentation of the nucleus
+used to create the Low DAPI intensity channel";0.3;µm;1
+Surface grain size for segmentation of the nucleolus ;0.2;µm;2
+Diameter Of Largest Sphere for segmentation of the nucleolus ;1.6;µm;3
+Surface grain size for segmentation of the nucleus ;0.8;µm;4
+Surface grain size for segmentation of Chromocenter surfaces;0.2;µm;5
+Diameter Of Largest Sphere for segmentation of chromocenter surfaces;1.6;µm;6
+Diameter Of Largest Sphere for detailed segmentation of the nucleus ;1;µm;7

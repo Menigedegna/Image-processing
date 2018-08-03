@@ -192,8 +192,10 @@ def fetch(entries, root, ParameterOption):
     root.destroy()
     if  ParameterOption=="SmothingSurface":
         SmothingFactor = x
-    else :
+    elif ParameterOption=="LocalContrastFilterWidth":
         aLocalContrastFilterWidth = x
+    else:
+        number_of_shell = x
 
 
 def makeform(root):
@@ -207,9 +209,14 @@ def makeform(root):
     return ent
 
 
-def AskUserSmoothingFactor(ParameterOption):
+def ask_user_to_set_parameters(ParameterOption):
     root = Tk()
-    label_text = "Set smooth surface detail " if ParameterOption=="SmothingSurface" else "Set value of Local Contrast Filter Width "
+    if ParameterOption == "SmothingSurface":
+        label_text = "Set smooth surface detail "
+    elif ParameterOption == "LocalContrastFilterWidth":
+         label_text = "Set value of Local Contrast Filter Width "
+    else:
+          label_text = "Set number of shells "
     row = Frame(root)
     lab = Label(row, width=30, text=label_text, anchor='w')
     row.pack(side=TOP, fill=X, padx=5, pady=5)
@@ -231,7 +238,7 @@ def AskUserSmoothingFactor(ParameterOption):
 #Function to create a folder under the same directory as the images to save files that are produced
 def CreateDirectoryToSaveFiles(Result_pathway):
     if os.path.exists(Result_pathway):
-        tkMessageBox.showinfo(title="Alert", message="Please save the folder 'XTCountSpotPerShell_Result' under another name first!")
+        tkMessageBox.showinfo(title="Alert", message="Please save the folder 'XTGetShellIntensity_Result' under another name first!")
         quit()
     else:
         os.makedirs(Result_pathway)
@@ -249,13 +256,18 @@ def GetImageFeatures(FileIndex, Result_pathway, vFileName, vFullFileName, number
     global IntensityList
     global VolumeList
     global DAPIChannel
+    global number_of_shell
+    SmothingFactor = 0.8
+    aLocalContrastFilterWidth = 0.0
+    number_of_shell = 10
     vImage                  =   	vImaris.GetDataSet()
     if vImage is not None:
         numberIndex         =   vImage.GetSizeC()
         if FileIndex        ==  1:
             DAPIChannel     =   Ask_user(numberIndex)
-            AskUserSmoothingFactor("SmothingSurface")
-            AskUserSmoothingFactor("LocalContrastFilterWidth")
+            ask_user_to_set_parameters("SmothingSurface")
+            ask_user_to_set_parameters("LocalContrastFilterWidth")
+            ask_user_to_set_parameters("NumberOfShell")
         NucleusSurface      =       None
         date			       =	      str(datetime.datetime.now()).split(" ")[0]
         date			       +=	   " 00:00:00"
@@ -393,7 +405,7 @@ def XTGetShellIntensity(aImarisId):
             print "There was a problem to open window to ask user to set input parameters. Please check log file."
             pass
         if Image_folder is not None:
-            Result_pathway          =           os.path.join(Image_folder, "XTGetIntensity_Result")
+            Result_pathway          =           os.path.join(Image_folder, "XTGetShellIntensity_Result")
             CreateDirectoryToSaveFiles(Result_pathway)
             AllFilesInDirectory     =           os.listdir(Image_folder) #get all files in the Image_folder directory
             logtime('Get all files')

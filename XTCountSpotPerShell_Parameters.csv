@@ -1,0 +1,13 @@
+Parameters;Value;unit;
+"Surface grain size for detailed segmentation of the nucleus
+used to create the Low DAPI intensity channel";0.2;µm;0
+"Surface grain size for rough segmentation of the nucleus
+used to create the Low DAPI intensity channel";0.6;µm;1
+Surface grain size for segmentation of the nucleolus ;0.2;µm;2
+Diameter Of Largest Sphere for segmentation of the nucleolus ;0.77;µm;3
+Diameter Of Largest Sphere for segmentation of the nucleus ;0;µm;4
+Surface grain size for segmentation of Chromocenter surfaces;0.2;µm;5
+Diameter Of Largest Sphere for segmentation of chromocenter ;0.2;µm;6
+NoBorderContact;0;True =1, False =0;7
+Maximum intensity threshold for immunostaining channel segmentation;99;%;8
+Maximum factor for chromocenter scaling;2;;9
