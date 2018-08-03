@@ -41,6 +41,7 @@ shutil
 Plugin  | Parameter file  | Import module from this repository
 ------------- | ------------- | -------------
 XTSegmentNuclei.py  | XTSegmentNuclei_Parameters.csv  | None
+XTSegment_nucleus.py  | XTSegment_nucleus_Parameters.csv  | None
 XTGetShellIntensity.py  | None  | None
 XTGetSurfaceVertices.py  | None  | None
 XTNucleiPloidy.py  | None  | None
