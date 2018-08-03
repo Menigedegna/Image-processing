@@ -48,7 +48,6 @@ Please feel free to download, use and modify the plugins, during any publication
 ## Acknowledgments
 
 * UZH images processing plateform for providing Imaris software
-* Dr Célia Baroux for collaborating with the nuclei isolation and FISH protocol
 * Prof. Reinhard Furrer and Dr. Peter Majer for their recommendations
-* Imaris developpers for the well organised and extensive documention on Imaris' build in functions.
+* Imaris developpers for the well organised and extensive documentation on Imaris' build-in functions.
 * Users of Stack Overflow for their questions and usefull solutions.
