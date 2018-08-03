@@ -24,6 +24,11 @@ shutil
 
 ```
 
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
 ## Running the tests and getting Started
 
 * You can download a <b>demo file</b> from the following link: 
