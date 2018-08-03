@@ -11,7 +11,7 @@ Create multiple scaled surfaces of the nucleus surface and export intensity and 
 <img src="XTGetShellIntensity_snapshot.png" alt="image not found" width="200px"/>  | <img src="XTSimulateRandomSpots_snapshots.png" alt="image not found" width="200px"/>
 XTSpotIntensity.py  | XTSimulateRandomSpots.py
 Segment nucleus, chromocenters, nucleolus, foci and export intensity in all channels and positions of each spot.  | * Segment nuclei undergone whole mount DNA staining. Other plugins only process images with isolated nucleus. Plugin also creates nucleus surface scaled up.
-<img src="XTSpotIntensity_snapshot.png" alt="image not found" width="200px"/>  | <img src="XTWholeMountSegmentation_snapshot.png" alt="image not found" width="200px"/>
+<img src="XTSpotIntensity_snapshot.png" alt="image not found" width="200px"/>  | <img src="XTWholeMountSegmentation_snapshot.png" alt="image not found" width="400px"/>
 
 ## Setting up the  environment
 Please follow the visual instructions in the XTFISHInsideNucleus_Manual.pdf to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin. This power point was initially created for XTFISHInsideNucleus.py, my first plugin published in http://open.bitplane.com/Default.aspx?tabid=235&id=131. But the same tools and methods has been transfered to other plugins (specially the segmentation method). 
