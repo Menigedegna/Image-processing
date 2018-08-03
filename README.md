@@ -35,7 +35,7 @@ XTSimulateRandomSpots.py  | XTSimulateRandomSpots_Parameters.csv  | XTSegmentNuc
 XTWholeMountSegmentation.py  | XTWholeMountSegmentation_Parameters.csv  | XTSegmentNuclei.py
 
 
-## Running the tests and getting Started
+## Running the tests and getting started
 
 * You can download a <b>demo file</b> from the following link: 
 ```
