@@ -4,7 +4,7 @@ These plugins are designed for isolated nuclei undergone FISH or Immunostaining 
 Please read the FISH_Image processing_protocol.pdf that I published in Methods and Protocols, Methods in Molecular Biology 2018, to get more information about how to acquire such (FISH) images.
 
 ## Setting up the  environment
-Please follow the visual instructions in the Set_up.ppt to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin.
+Please follow the visual instructions in the XTFISHInsideNucleus_Manual.pdf to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin. This power point was initially created for XTFISHInsideNucleus.py, my first plugin published in http://open.bitplane.com/Default.aspx?tabid=235&id=131. But the same tools and methods has been transfered to other plugins (specially the segmentation method). 
 
 ### Prerequisites
 
