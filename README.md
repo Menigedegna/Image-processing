@@ -24,10 +24,16 @@ shutil
 
 ```
 
-First Header  | Second Header
+Plugin  | Parameter file  | Import module
 ------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell
+XTSegmentNuclei.py  | XTSegmentNuclei_Parameters.csv  | None
+XTGetShellIntensity.py  | None  | None
+XTGetSurfaceVertices.py  | None  | None
+XTNucleiPloidy.py  | None  | None
+XTSpotIntensity.py  | XTCountSpotPerShell_Parameters.csv  | XTSegmentNuclei.py
+XTSimulateRandomSpots.py  | XTSimulateRandomSpots_Parameters.csv  | XTSegmentNuclei.py
+XTWholeMountSegmentation.py  | XTWholeMountSegmentation_Parameters.csv  | XTSegmentNuclei.py
+
 
 ## Running the tests and getting Started
 
