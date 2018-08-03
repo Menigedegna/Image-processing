@@ -5,10 +5,13 @@ Please read the FISH_Image processing_protocol.pdf that I published in Methods a
 
 ## Description of plugins
 
-XTGetShellIntensity.py   | XTSimulateRandomSpots.py
-------------- | -------------
-* Create multiple scaled surfaces of the nucleus surface and export intensity and volume of each shell (area in-between surfaces).  | * Simulate random spots. As an option the user can exclude the chromocenters and the nucleolus from the simulation area.
-<img src="XTGetShellIntensity_snapshot.png" alt="image not found" width="200px"/>  | <img src="XTSimulateRandomSpots_snapshots.png" alt="image not found" width="200px"/>
+### XTGetShellIntensity.py
+
+<img src="XTGetShellIntensity_snapshot.png" alt="image not found" width="200px"/> * Create multiple scaled surfaces of the nucleus surface and export intensity and volume of each shell (area in-between surfaces). 
+
+### XTSimulateRandomSpots.py
+
+<img src="XTSimulateRandomSpots_snapshots.png" alt="image not found" width="200px"/> * Simulate random spots. As an option the user can exclude the chromocenters and the nucleolus from the simulation area.
 
 
 
