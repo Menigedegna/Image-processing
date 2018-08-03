@@ -14,6 +14,8 @@ Segment nucleus, chromocenters, nucleolus, foci and export intensity in all chan
 <img src="XTSpotIntensity_snapshot.png" alt="image not found" width="200px"/>  | <img src="XTWholeMountSegmentation_snapshot.png" alt="image not found" width="300px"/>
 <b>XTSegmentNuclei.py</b>  | <b>XTNucleiPloidy.py</b>
 Segment nucleus surface, chromocenters, and nucleolus and exports surfaces' positions, volumes, sphericities.  | * Segment nucleus surface and clusters batch of images into clusters using nucleus volume and sum DAPI intensity inside the nucleus.
+<b>XTSegment_nucleus.py</b>  | 
+An <b>object oriented programming</b> version of XTSegmentNuclei.py to optimise code.  | 
 
 ## Setting up the  environment
 Please follow the visual instructions in the XTFISHInsideNucleus_Manual.pdf to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin. This power point was initially created for XTFISHInsideNucleus.py, my first plugin published in http://open.bitplane.com/Default.aspx?tabid=235&id=131. But the same tools and methods has been transfered to other plugins (specially the segmentation method). 
