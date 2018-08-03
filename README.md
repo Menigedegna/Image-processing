@@ -8,9 +8,9 @@ Please follow the visual instructions in the XTFISHInsideNucleus_Manual.pdf to s
 
 ### Prerequisites
 
-Imaris 8.4 and higher versions. 
+<b>Imaris 8.4</b> and higher versions. 
 
-Python 2.7 and higher versions and the following packages:
+<b>Python 2.7</b> and higher versions and the following packages:
 ```
 Tkinter
 os
@@ -26,7 +26,7 @@ shutil
 
 ## Running the tests and getting Started
 
-* You can download a demo file from the following link: 
+* You can download a <b>demo file</b> from the following link: 
 ```
 https://www.dropbox.com/sh/7admke13knqzq3e/AADGlJVOT5_IZFcZLYTkfWffa?dl=0
 
