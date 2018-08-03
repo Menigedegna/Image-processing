@@ -4,13 +4,13 @@
 #==============================================================================
 # Objectives of this PythonXT for Imaris:
 #   Segments nucleus into a surface in DAPI channel,
-#   Get mean and sum DAPI intensity inside surface
-#   Get volume of surface
-#   Cluster nucleus into ploidy
+#   Create multiple scaled nucleus surface from nucleus surface to center of mass
+#   Get mean and sum DAPI intensity inside each shell (area in-between surfaces)
+#   Get volume of shell
 #   Exports result into .csv tables
 # Note: This script is calibrated for 3D images of plant nuclei conterstained in DAPI obtained using Leica TCS SP8
 # Creator: Mariamawit S. Ashenafi, UZH
-# Published on 23.01.2016
+# Created on 23.01.2016
 #==============================================================================
 #
 #    <CustomTools>
@@ -32,16 +32,6 @@ import tkFileDialog
 import time
 import datetime
 import itertools
-#==============================================================================
-# The following python packages are only installed on my home directory on the virtual machines
-# TODO: Tell user to add any additional directoy containing packages in Preferences/Custom Tool
-# Note this adds more time to load  all libs required
-# Keep this option for zmb users or edit it out before publishing 
-#==============================================================================
-import sys #TODO: edit out?
-sys.path.insert(1,'H:\Python') #TODO: edit out?
-import scipy #TODO: edit out?
-from sklearn.cluster import KMeans #both numpy and scipy needs to be imported before importing sklearns 
 import matplotlib.pyplot as plt
 #==============================================================================
 
@@ -62,7 +52,7 @@ def logtime(aTitle):
     diff = '-'
   gLasttime = curtime
   print curtime.ctime(), '[', str(diff), ']', aTitle
-  
+
 #==============================================================================
 # Pop-up windows to ask user to set folder pathway and channels to segment
 #==============================================================================
@@ -78,7 +68,7 @@ class Checkbar(Frame):
   def state(self):
     return map((lambda var: var.get()), self.vars)
 
-def allstates(): 
+def allstates():
     global User_selection
     global root
     if sum(list(lng.state()))>0:
@@ -87,7 +77,7 @@ def allstates():
     else:
         Message="Please select one of the options."
         Label(root, text=Message).grid(row=1)
- 
+
 def PopUpMessage(OPTIONS, Messge):
   global root
   global lng
@@ -150,8 +140,8 @@ def GetNucleusIntensity(surf, TypeOutput):
     vValues        		= 	vAllStatistics.mValues
     IntensitySum        =   [float(vValues[a]) for a, x in enumerate(vNames) if x == "Intensity "+ TypeOutput]
     return IntensitySum
-    
-    
+
+
 #For a surface containing several surface, this function selectes the most dense surface and creates a surface containing only this selected surface
 def SelectSurface(vscene, surf, surfType, groupContainer):
     vTimeIndex          =   0
@@ -176,7 +166,7 @@ def SelectSurface(vscene, surf, surfType, groupContainer):
     groupContainer.AddChild(vNucleiSurface, -1)
     vscene.AddChild(groupContainer, -1)
     return vNucleiSurface
-    
+
 #This function returns the volume value of surface
 def GetVolume(surf):
     vAllStatistics 		= 	surf.GetStatistics()
@@ -192,7 +182,7 @@ def GetVolume(surf):
 # ==============================================================================
 def fetch(entries, root, ParameterOption):
     global SmothingFactor
-    global aLocalContrastFilterWidth 
+    global aLocalContrastFilterWidth
     text = entries.get()
     try:
         x = float(text)
@@ -201,7 +191,7 @@ def fetch(entries, root, ParameterOption):
         return
     root.destroy()
     if  ParameterOption=="SmothingSurface":
-        SmothingFactor = x  
+        SmothingFactor = x
     else :
         aLocalContrastFilterWidth = x
 
@@ -245,8 +235,8 @@ def CreateDirectoryToSaveFiles(Result_pathway):
         quit()
     else:
         os.makedirs(Result_pathway)
-        
-        
+
+
 #==============================================================================
 # This function:
 # Segments DAPI chanenl into nucleus surface and gets the mean and max DAPI intensity inside nucleus and the volume of the nucleus
@@ -289,10 +279,10 @@ def GetImageFeatures(FileIndex, Result_pathway, vFileName, vFullFileName, number
         vPathToSaveTables = os.path.join(Result_pathway, "Snapshot_"+vFileName+".tif")
         vImaris.SaveSnapShot(vPathToSaveTables) #Save snapsht of shells without nucleus
         logtime('Nucleus surface segmented - Image '+str(FileIndex))
-        if NucleusSurface is not None: 
+        if NucleusSurface is not None:
             numberIndex     =       numberIndex+1
             logtime('Create shell START - Image '+str(FileIndex))
-            ListShell=CreateShells(vFactory, NucleusSurface, number_of_shell, GroupOfObjects) 
+            ListShell=CreateShells(vFactory, NucleusSurface, number_of_shell, GroupOfObjects)
             logtime('Create shell END - Image '+str(FileIndex))
             for shell, nbShell in zip(ListShell,range(number_of_shell, 0, -1)) :
                 MaskSurface =   Get_Mask_data(shell)
@@ -313,7 +303,7 @@ def GetImageFeatures(FileIndex, Result_pathway, vFileName, vFullFileName, number
 def AddChannel(table, vImage, numberIndex):
     vImage.SetSizeC(numberIndex)
     vImage.SetDataVolumeFloats(table, numberIndex-1, 0)
-    
+
 def Get_Mask_data(Surf):
     vImage			=	vImaris.GetDataSet()
     vImageSizeX 	=	vImage.GetSizeX()
@@ -389,7 +379,7 @@ def XTGetShellIntensity(aImarisId):
         pass
     if vImaris is not None : #Is Imaris connected?
         logtime('Connected to Imaris')
-        vImaris.GetSurpassCamera().SetPerspective(0) #Set camera to orthographic view 
+        vImaris.GetSurpassCamera().SetPerspective(0) #Set camera to orthographic view
         FileIndex              =       1 #This  variable is used to count the number of files analysed
 #==============================================================================
 #              		STEP 2: ASK USER TO SET INPUT PARAMETERS
@@ -447,7 +437,7 @@ def XTGetShellIntensity(aImarisId):
                     logging.exception("Exporting data issue :")
                     print "There was an issue formatting output table: 'Result.csv'. Please check log file."
                     print "The dimension of the table should be columns = 2+number of channels, rows = number of shells * number of images"
-                    ResultDf.to_csv(path_or_buf=vPathToSaveTables, na_rep='', float_format=None, columns=None, header=True, index=False, decimal='.') 
+                    ResultDf.to_csv(path_or_buf=vPathToSaveTables, na_rep='', float_format=None, columns=None, header=True, index=False, decimal='.')
                     pass
             else: #Are there any .ims files?
                 tkMessageBox.showinfo(title="Alert", message="There is no .ims or .ics file detected in the selected folder.")
