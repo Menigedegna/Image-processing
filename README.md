@@ -5,10 +5,14 @@ Please read the FISH_Image processing_protocol.pdf that I published in Methods a
 
 ## Description of plugins
 
-### XTGetShellIntensity.py
-* Create multiple scaled surfaces of the nucleus surface and export intensity and volume of each shell (area in-between surfaces)<br>
+XTGetShellIntensity.py   | XTSimulateRandomSpots.py
+------------- | -------------
+* Create multiple scaled surfaces of the nucleus surface and export intensity and volume of each shell (area in-between surfaces). | * Simulate random spots. As an option the user can exclude the chromocenters and the nucleolus from the simulation area.
 
-<img src="XTGetShellIntensity_snapshot.png" alt="drawing" width="200px"/>
+<img src="XTGetShellIntensity_snapshot.png" alt="drawing" width="200px"/>  | <img src="XTGetShellIntensity_snapshot.png" alt="drawing" width="200px"/>
+
+
+XTSimulateRandomSpots_snapshots
 
 ## Setting up the  environment
 Please follow the visual instructions in the XTFISHInsideNucleus_Manual.pdf to set up and use the plugins, and to have a better understanding on how the segmentation works, so that it is easier to adjust the input parameters for each plugin. This power point was initially created for XTFISHInsideNucleus.py, my first plugin published in http://open.bitplane.com/Default.aspx?tabid=235&id=131. But the same tools and methods has been transfered to other plugins (specially the segmentation method). 
